@@ -1,3 +1,4 @@
+// @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // v1.4.3 (#544, #127): reading heart rate and weigh-ins back from Health Connect / Apple Health.
@@ -240,5 +241,21 @@ describe('weigh-ins with the history permission', () => {
     h.calls = []
     await hs.enableRead('weight', getState, { apply })
     expect(h.calls[0]).toEqual(['request', { read: ['weight'], write: [] }])
+  })
+})
+
+describe('account ownership', () => {
+  afterEach(()=>localStorage.clear())
+  it('keeps consent and import cursors separate for each authenticated owner', async () => {
+    localStorage.setItem('gym_owner','marcos')
+    await hs.loadHealth()
+    await hs.enableRead('weight',getState,{apply})
+    expect(h.files.has('opengym-health-marcos.json')).toBe(true)
+    localStorage.setItem('gym_owner','marih')
+    const other=await hs.loadHealth()
+    expect(other.readWeight).toBe(false)
+    expect(other.wCursor).toBe(0)
+    expect(other.owner).toBe('marih')
+    expect((await hs.readHealth(getState,{force:true,apply})).readWeight).toBe(false)
   })
 })

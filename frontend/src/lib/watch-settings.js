@@ -1,3 +1,4 @@
+import { PERSONAL } from './personal-mode.js'
 // Settings → Apple Watch (iPhone app only): this phone's choices for its watch, and what the watch
 // last said about itself. Per device, in localStorage, never in the profile: a profile signed in on
 // two phones may have one watch, or none. The watch gets the choices with every snapshot
@@ -34,9 +35,10 @@ const emit = () => { for (const fn of listeners) { try { fn() } catch { /* a lis
 const read = (key, storage) => { try { return JSON.parse(storage?.getItem(key) || 'null') } catch { return null } }
 
 export function readWatchPrefs(storage = globalThis.localStorage) {
-  const v = read(WATCH_PREFS_KEY, storage) || {}
+  const key = PERSONAL ? WATCH_PREFS_KEY + '.' + (storage?.getItem('gym_owner') || 'none') : WATCH_PREFS_KEY
+  const v = read(key, storage) || {}
   return {
-    enabled: v.enabled !== false,
+    enabled: PERSONAL ? v.enabled === true : v.enabled !== false,
     autoShow: v.autoShow !== false,
     restHaptics: v.restHaptics !== false,
     crown: v.crown === 'weight' ? 'weight' : 'reps',
@@ -49,7 +51,7 @@ export function writeWatchPrefs(patch, storage = globalThis.localStorage) {
   // `show` is merged one choice at a time: a patch of one switch keeps the others.
   const merged = { ...cur, ...patch, ...(patch && patch.show ? { show: { ...cur.show, ...patch.show } } : {}) }
   const next = readWatchPrefs({ getItem: () => JSON.stringify(merged) })
-  try { storage?.setItem(WATCH_PREFS_KEY, JSON.stringify(next)) } catch { /* private mode: for this run */ }
+  try { storage?.setItem(PERSONAL ? WATCH_PREFS_KEY + '.' + (storage?.getItem('gym_owner') || 'none') : WATCH_PREFS_KEY, JSON.stringify(next)) } catch { /* private mode: for this run */ }
   emit()
   return next
 }

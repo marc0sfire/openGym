@@ -1,3 +1,14 @@
+# openGym pessoal · Marcos e Marih
+
+Distribuição pessoal em português brasileiro, derivada do openGym de Duarte Santos.
+[Usar o app](https://opengym-pessoal-ten.vercel.app) · [Guia de uso, implantação e limites das integrações](docs/PESSOAL.md).
+
+A web/PWA usa PostgreSQL Neon na Vercel. O componente nativo iOS/watchOS permanece separado.
+Confira o guia antes de ativar integrações: nenhuma foi validada nos aparelhos físicos.
+Licenças e créditos originais preservados abaixo e em [NOTICE.md](NOTICE.md).
+
+---
+
 <div align="center">
 
 <p>

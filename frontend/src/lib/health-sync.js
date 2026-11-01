@@ -1,3 +1,4 @@
+import { PERSONAL } from './personal-mode.js'
 // Health Connect on the Android app (#200): turning it on, and keeping it in step with the log.
 // What gets written is worked out in lib/health-connect.js; this file owns the native plugin
 // (HealthConnectPlugin.java) and the phone's own record of what it wrote.
@@ -26,6 +27,19 @@ import { EXIDX } from './exercises.js'
 import { speedUnitOf } from './speed.js'
 
 export const HEALTH_FILE = 'opengym-health.json'
+const currentOwner = () => { try { return localStorage.getItem('gym_owner') || '' } catch { return '' } }
+let cachedOwner = null
+// A phone's Health database has one owner. Switching app accounts must not relabel it.
+async function claimHealthOwner() {
+  if (!PERSONAL) return true
+  const owner = currentOwner()
+  if (!owner) return false
+  const binding = await readJsonFile('opengym-health-owner.json')
+  if (binding?.owner) return binding.owner === owner
+  await writeJsonFile('opengym-health-owner.json', { owner, agreedAt: Date.now() })
+  return true
+}
+const healthFile = () => currentOwner() ? `opengym-health-${currentOwner().replace(/[^a-zA-Z0-9_-]/g, '')}.json` : HEALTH_FILE
 const OFF = { on: false, written: {}, at: 0, error: null, readHr: false, readWeight: false, wHistory: false, wCursor: 0, seen: {}, hrTried: {}, readError: null }
 
 // Wrapped in an object, as in rest-alert.js: a Capacitor plugin proxy answers `then`, so a
@@ -48,13 +62,16 @@ async function mirrorOn(on) {
 // not cost a file read, and every change to it goes through saveHealth anyway.
 let cached = null
 export async function loadHealth() {
-  if (cached) return cached
-  const f = await readJsonFile(HEALTH_FILE)
+  const owner = currentOwner()
+  if (cached && cachedOwner === owner) return cached
+  cachedOwner = owner
+  const f = await readJsonFile(healthFile())
   const map = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
   cached = f && typeof f === 'object' ? { ...OFF, ...f, written: map(f.written), seen: map(f.seen), hrTried: map(f.hrTried) } : { ...OFF }
+  cached.owner = owner
   return cached
 }
-const saveHealth = h => { cached = h; return writeJsonFile(HEALTH_FILE, h) }
+const saveHealth = h => { if (h.owner !== currentOwner()) return Promise.resolve(); cached = h; return writeJsonFile(healthFile(), h) }
 
 /** { status: 'available' | 'update' | 'missing' | 'unsupported', granted, platform } */
 export async function healthStatus() {
@@ -92,7 +109,7 @@ export function syncHealth(S) {
   if (!MOBILE) return Promise.resolve(null)
   // Not read yet: initHealthSync reads it at launch and syncs then, which covers a save made
   // before that; the save path itself never waits on the file.
-  if (!cached || !cached.on) return Promise.resolve(cached)
+  if (cachedOwner !== currentOwner() || !cached || !cached.on) return Promise.resolve(cached)
   if (running) { again = S; return running }
   again = null
   running = (async () => {
@@ -156,6 +173,7 @@ async function syncOnce(S, h) {
  * Health Connect is not there to ask.
  */
 export async function enableHealth(S) {
+  if (!await claimHealthOwner()) return { ok: false, reason: 'owner' }
   const p = await plugin()
   if (!p) return { ok: false, reason: 'unsupported' }
   const st = await p.HC.status().catch(() => ({ status: 'unsupported' }))
@@ -247,6 +265,7 @@ let lastWeightRead = 0
  * then reads once. Resolves with { ok, reason }; reason 'denied' when it was not granted.
  */
 export async function enableRead(kind, getState, { apply = null } = {}) {
+  if (!await claimHealthOwner()) return { ok: false, reason: 'owner' }
   const p = await plugin()
   if (!p) return { ok: false, reason: 'unsupported' }
   const st = await p.HC.status().catch(() => ({ status: 'unsupported' }))
@@ -286,13 +305,14 @@ export async function disableRead(kind) {
  * `force`). The log changes only when something new came in.
  */
 export function readHealth(getState, { force = false, now = Date.now(), apply = null } = {}) {
-  if (!MOBILE || !cached || !(cached.readHr || cached.readWeight)) return Promise.resolve(cached)
+  if (!MOBILE || cachedOwner !== currentOwner() || !cached || !(cached.readHr || cached.readWeight)) return Promise.resolve(cached)
   if (readRunning) return readRunning
   readRunning = readOnce(getState, force, now, apply || applyRef).finally(() => { readRunning = null })
   return readRunning
 }
 
 async function readOnce(getState, force, now, applyFn) {
+  const owner = currentOwner()
   const p = await plugin()
   if (!p) return cached
   const src = srcOf(p.platform)
@@ -301,6 +321,7 @@ async function readOnce(getState, force, now, applyFn) {
   let error = null
   // `decide` runs on a copy first: an update that changes nothing would still stamp and push.
   const apply = (decide, fn = decide) => {
+    if (currentOwner() !== owner) return false
     const probe = JSON.parse(JSON.stringify(getState() || {}))
     if (!decide(probe)) return false
     if (applyFn) applyFn(s => { fn(s) })
@@ -353,6 +374,7 @@ async function readOnce(getState, force, now, applyFn) {
     } catch (e) { fail(e) }
   }
 
+  if (currentOwner() !== owner) return cached
   h.readError = error
   await saveHealth(h)
   told(h)

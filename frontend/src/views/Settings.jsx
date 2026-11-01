@@ -1663,7 +1663,7 @@ function HealthConnectCard({ S, toast, android }) {
       if (r.health) setH(r.health)
       else setH(await loadHealth())
       if (r.ok) toast(c.on)
-      else toast(r.reason === 'denied' ? c.denied : c.failed)
+      else toast(r.reason === 'owner' ? 'O Apple Saúde deste celular já está vinculado a outra conta. Use seu próprio iPhone.' : r.reason === 'denied' ? c.denied : c.failed)
     } catch { toast(c.failed) }
     setBusy(false)
   }
@@ -1681,7 +1681,7 @@ function HealthConnectCard({ S, toast, android }) {
       if (v) {
         const r = await enableRead(kind, getState)
         setH(r.health || await loadHealth())
-        if (!r.ok) toast(r.reason === 'denied' ? c.denied : c.failed)
+        if (!r.ok) toast(r.reason === 'owner' ? 'O Apple Saúde deste celular já está vinculado a outra conta. Use seu próprio iPhone.' : r.reason === 'denied' ? c.denied : c.failed)
       } else setH(await disableRead(kind))
     } catch { toast(c.failed) }
     setBusy(false)

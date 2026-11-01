@@ -1,3 +1,4 @@
+import { PERSONAL } from './personal-mode.js'
 // The Apple Watch link, the page's side (native: ios/App/App/WatchBridgePlugin.swift, the watch
 // app: ios/App/Watch).
 //
@@ -244,7 +245,10 @@ function entryIndexOf (A, ev) {
  * not open opens it (appHandlers.openWorkout), and the queue drains once it is there. Of two
  * changes of the same set, the later one (`at`) wins.
  */
+const watchOwnerAllowed = state => !PERSONAL || state?.user?.name === 'Marcos' && state?.S?.personalConsent?.owner === state.user.id && !!state.S.personalConsent.agreedAt
+
 export function applyEvents (events, getState) {
+  if (!watchOwnerAllowed(getState())) return []
   if (!Array.isArray(events)) return []
   const applied = readApplied()
   const done = []
@@ -525,14 +529,15 @@ export async function startWatchSync ({ useStore, useUI }) {
     if (!linked || !storeReady()) return
     try {
       const S = useStore.getState().S
-      const prefs = readWatchPrefs()
+      const allowed = watchOwnerAllowed(useStore.getState())
+      const prefs = { ...readWatchPrefs(), ...(!allowed ? { enabled: false } : {}) }
       // Settings → Apple Watch: off, the watch is told there is nothing (no workout, nothing ready).
       const snap = prefs.enabled
         ? buildSnapshot(S, { timer: useUI.getState().timer, ready: readyFor(S) })
         : { v: SNAPSHOT_VERSION, unit: S.unit === 'lb' ? 'lb' : 'kg', active: null, ready: null }
-      snap.settings = { ...settingsForWatch(prefs, healthOn), ...watchExtras(S) }
+      snap.settings = { ...settingsForWatch(prefs, healthOn && allowed), ...watchExtras(S) }
       // With Apple Health on: the deleted workouts, so the watch removes the copies it saved.
-      if (healthOn) { const gone = healthGoneFor(S); if (gone.length) snap.healthGone = gone }
+      if (healthOn && allowed) { const gone = healthGoneFor(S); if (gone.length) snap.healthGone = gone }
       // Discarded here: the watch drops its Apple Health workout instead of saving it (#776).
       const discarded = discardedFor()
       if (discarded.length) snap.discarded = discarded
@@ -561,7 +566,7 @@ export async function startWatchSync ({ useStore, useUI }) {
     if (s.S === prev.S) return
     schedule()
     // A workout started on the phone: the watch app opens with it (HealthKit's startWatchApp).
-    if (linked && shouldOpenOnWatch(prev.S?.active, s.S?.active)) Promise.resolve().then(() => p.WatchBridge.openOnWatch({ type: plannedType(s.S.active.entries) || undefined })).catch(() => {})
+    if (linked && watchOwnerAllowed(s) && shouldOpenOnWatch(prev.S?.active, s.S?.active)) Promise.resolve().then(() => p.WatchBridge.openOnWatch({ type: plannedType(s.S.active.entries) || undefined })).catch(() => {})
   })
   // The rest as the watch needs it changes when it starts, stops or is paused, not every second.
   const restOf = t => (t ? `${t.endsAt}|${!!t.paused}|${!!t.ready}` : '')
