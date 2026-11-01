@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import pg from 'pg';
+import fs from 'node:fs';
 const url = process.env.TEST_DATABASE_URL;
 test('cloud: authentication, owner isolation, consent, CAS and persistence across processes', { skip: !url, timeout: 90000 }, async t => {
   assert.match(new URL(url).pathname, /_validation$/,'only the disposable validation database is permitted');
@@ -47,6 +48,7 @@ test('cloud: authentication, owner isolation, consent, CAS and persistence acros
   assert.equal((await req('/api/pair/redeem',{method:'POST',body:{code:pairing.body.code}})).status,400);
   const login=await req('/api/login/password',{method:'POST',body:{name:'Marcos',password}});assert.equal(login.status,200);
   const restored=await req('/api/data',{cookie:login.cookie});assert.equal(restored.body.state.bodyweight[0].w,81.2);assert.equal(restored.body.state.workouts.length,1);
+  if (process.env.CLOUD_EVIDENCE_FILE) fs.writeFileSync(process.env.CLOUD_EVIDENCE_FILE, JSON.stringify({cookie:login.cookie,owner:a.body.user.id}),{mode:0o600});
   const runtime=JSON.parse((await pool.query("SELECT content FROM opengym_documents WHERE name='_runtime.json'")).rows[0].content);
   assert.ok(runtime.challenges.some(([id])=>id===cid),'passkey challenges survive process replacement');
 });
