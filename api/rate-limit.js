@@ -1,3 +1,6 @@
+const persistentMaps = [];
+export const snapshotLimits = () => persistentMaps.map(m => [...m]);
+export function restoreLimits(lists) { persistentMaps.forEach((m, i) => { m.clear(); for (const [k,v] of lists[i] || []) m.set(k,v); }); }
 /* In-memory throttling for the password routes (#118).
  *
  * Until password sign-in there was nothing worth guessing: a passkey assertion cannot be
@@ -36,6 +39,7 @@ const MINUTE = 60000;
 // evicted; it is asked only of a key that would otherwise be the one, because it may be slow.
 function boundedMap(maxKeys, rank, keep = () => false) {
   const m = new Map();
+  persistentMaps.push(m);
   return {
     get: k => m.get(k),
     // Re-inserted on every touch, so iteration order is least recently used first.

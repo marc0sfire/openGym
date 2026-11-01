@@ -2,7 +2,10 @@
    No framework, JSON-file storage, signed session cookies.               */
 import http from 'node:http';
 import crypto from 'node:crypto';
-import fs from 'node:fs';
+import fs from './storage-fs.js';
+import { snapshotLimits, restoreLimits } from './rate-limit.js';
+const SERVERLESS = process.env.SERVERLESS === '1';
+const every = SERVERLESS ? () => ({ unref() {} }) : setInterval;
 import path from 'node:path';
 import https from 'node:https';
 import dns from 'node:dns';
@@ -180,7 +183,7 @@ function saveDb() {
 }
 // Flushed before and after the rename (durable.js): a host reset must not bring back the file
 // the client was told had been replaced.
-function atomicWrite(file, content, mode) { durableWrite(file, content, mode); }
+function atomicWrite(file, content, mode) { if (SERVERLESS) fs.writeFileSync(file, content); else durableWrite(file, content, mode); }
 // How many earlier write ids a document keeps (`_wids`, see PUT /api/data): a device that last
 // synced more writes ago than this merges on its next pull instead of taking the server's copy.
 const WID_KEEP = 50;
@@ -560,7 +563,7 @@ function stateSummary(uid) {
   stateSummaries.set(uid, sum);
   return sum;
 }
-setInterval(() => {
+every(() => {
   for (const user of db.users) {
     if (user.disabled) continue;            // locked out everywhere, reminders included
     if (!db.subs.some(s => s.userId === user.id)) continue;
@@ -823,7 +826,7 @@ function takeChallenge(cid) {
   if (!c || c.exp < Date.now()) return null;
   return c;
 }
-setInterval(() => { for (const [k, v] of challenges) if (v.exp < Date.now()) challenges.delete(k); }, 60000).unref();
+every(() => { for (const [k, v] of challenges) if (v.exp < Date.now()) challenges.delete(k); }, 60000).unref();
 
 // ---------- device pairing (mobile app "connect to my server", no WebAuthn ceremony) ----------
 // A passkey ceremony can't run inside the app's WebView (its origin never matches RP_ID), so the
@@ -838,7 +841,7 @@ function makePairCode() {
   } while (pairings.has(code));
   return code;
 }
-setInterval(() => { for (const [k, v] of pairings) if (v.exp < Date.now()) pairings.delete(k); }, 60000).unref();
+every(() => { for (const [k, v] of pairings) if (v.exp < Date.now()) pairings.delete(k); }, 60000).unref();
 
 /* ---------- helpers ---------- */
 function json(res, code, obj, extraHeaders) {
@@ -930,7 +933,7 @@ function livePresence(uid) {
   const { hiddenAt: _away, ...live } = p;   // the mark is bookkeeping; the dashboard gets the row it always did
   return live;
 }
-setInterval(() => { const now = Date.now(); for (const [k, v] of presence) if (!presenceListed(v, now)) presence.delete(k); }, 30000).unref();
+every(() => { const now = Date.now(); for (const [k, v] of presence) if (!presenceListed(v, now)) presence.delete(k); }, 30000).unref();
 
 /* ---------- audit log ---------- */
 // Who signed in, who tried and failed, and what an admin changed. One JSON object per line in
@@ -1025,7 +1028,7 @@ function audit(req, ev, f = {}) {
 }
 if (AUDIT_ON) {
   compactAudit();                                // prune on boot, seed auditSeq/auditCount
-  setInterval(compactAudit, 3600000).unref();    // honour AUDIT_DAYS on an idle instance too
+  every(compactAudit, 3600000).unref();    // honour AUDIT_DAYS on an idle instance too
 }
 
 /* ---------- sign-in throttle ---------- */
@@ -1073,7 +1076,7 @@ const ACCOUNT_FAILS = createBackoff({
   // At most one per profile with a password, so this cannot grow without bound.
   keep: k => k.startsWith('acct:') && hasPassword(db.users.find(u => u.id === k.slice(5)))
 });
-setInterval(() => { AUTH_BURST.sweep(); ADDR_FAILS.sweep(); ACCOUNT_FAILS.sweep(); }, 60000).unref();
+every(() => { AUTH_BURST.sweep(); ADDR_FAILS.sweep(); ACCOUNT_FAILS.sweep(); }, 60000).unref();
 
 // Route -> the kind of failure it can count. Every route listed here also spends the burst
 // budget; `null` spends only that.
@@ -1143,7 +1146,7 @@ function strikeAddress(req, kind) {
 // dropped is a row that says the same thing as the ten before it.
 const FAIL_AUDIT = createWindow({ max: 10, windowMs: 60000 });
 const FAIL_AUDIT_ALL = createWindow({ max: 120, windowMs: 60000 });
-setInterval(() => { FAIL_AUDIT.sweep(); FAIL_AUDIT_ALL.sweep(); }, 60000).unref();
+every(() => { FAIL_AUDIT.sweep(); FAIL_AUDIT_ALL.sweep(); }, 60000).unref();
 function auditFail(req, ev, f) {
   if (FAIL_AUDIT.take(ev + '|' + limitAddress(req)) || FAIL_AUDIT_ALL.take(ev)) return;
   audit(req, ev, f);
@@ -1436,6 +1439,7 @@ const passwordRoutes = {
     const name = text(body.name).trim().slice(0, 40);
     if (!name) return json(res, 400, { error: 'name required', code: 'missing' });
     const code = text(body.code).trim().toUpperCase();
+    if (SERVERLESS && (!db.invites.some(i => i.code === code && i.personalName === name && !i.usedBy && !i.revoked) || db.users.some(u => nameKey(u.name) === nameKey(name)))) return json(res, 403, { error: 'Use o convite pessoal correspondente ao seu nome.', code: 'invite' });
     const invite = () => db.invites.find(i => i.code === code && !i.usedBy && !i.revoked);
     if (INVITE_ONLY && addressPaused(req, res, 'signup')) return;
     if (INVITE_ONLY && !invite()) {
@@ -1962,7 +1966,7 @@ const MEDIA_SWEEPS = createWindow({ max: 10, windowMs: 3600000 });
 // Uid -> until when its throttle has already been recorded, so a client hammering a closed
 // window writes one audit line per window, not one per request.
 const mediaThrottleNoted = new Map();
-setInterval(() => {
+every(() => {
   MEDIA_BURST.sweep(); MEDIA_SWEEPS.sweep();
   for (const [k, until] of mediaThrottleNoted) if (until < Date.now()) mediaThrottleNoted.delete(k);
 }, 600000).unref();
@@ -1970,7 +1974,7 @@ setInterval(() => {
 // person taps "send test" a few times and starts a rest after each set; a loop does neither.
 const PUSH_TESTS = createWindow({ max: 10, windowMs: 600000 });
 const REST_TIMER_SETS = createWindow({ max: 60, windowMs: 60000 });
-setInterval(() => { PUSH_TESTS.sweep(); REST_TIMER_SETS.sweep(); }, 600000).unref();
+every(() => { PUSH_TESTS.sweep(); REST_TIMER_SETS.sweep(); }, 600000).unref();
 function pushThrottled(res, win, user) {
   const wait = win.take(user.id);
   if (!wait) return false;
@@ -1997,7 +2001,7 @@ function mediaSweepAll() {
   } catch (e) { console.error('media: sweep failed', e); }
 }
 if (MEDIA_ON) {
-  setInterval(mediaSweepAll, 3600000).unref();
+  every(mediaSweepAll, 3600000).unref();
   setTimeout(mediaSweepAll, 5 * 60000).unref();
 }
 
@@ -2168,6 +2172,7 @@ const routes = {
     const name = text(body.name).trim().slice(0, 40);
     if (!name) return json(res, 400, { error: 'name required' });
     const code = text(body.code).trim().toUpperCase();
+    if (SERVERLESS && (!db.invites.some(i => i.code === code && i.personalName === name && !i.usedBy && !i.revoked) || db.users.some(u => nameKey(u.name) === nameKey(name)))) return json(res, 403, { error: 'Use o convite pessoal correspondente ao seu nome.', code: 'invite' });
     if (INVITE_ONLY && !db.invites.some(i => i.code === code && !i.usedBy && !i.revoked)) {
       // The rejected code itself is never recorded — a near-miss guess in the log is a liability.
       audit(req, 'auth.register.denied', { ok: false, name, msg: 'invite-rejected' });
@@ -2215,6 +2220,7 @@ const routes = {
       audit(req, 'auth.register.fail', { ok: false, name: c.name, msg: 'credential-exists' });
       return json(res, 409, { error: 'credential already registered' });
     }
+    if (SERVERLESS && (db.users.some(u => nameKey(u.name) === nameKey(c.name)) || !db.invites.some(i => i.code === c.code && i.personalName === c.name))) return json(res, 403, { error: 'Convite pessoal inválido.', code: 'invite' });
     // Re-check the invite at the last moment (it may have been used/revoked since options), then burn it.
     let invite = null;
     if (INVITE_ONLY) {
@@ -2485,6 +2491,7 @@ const routes = {
     if (!Array.isArray(body.state) && !Object.keys(body.state).some(k => k !== '_rev' && k !== '_ts')) {
       return json(res, 400, { error: 'state required' });
     }
+    if (SERVERLESS && (!body.state.personalConsent?.agreedAt || body.state.personalConsent?.owner !== user.id)) return json(res, 403, { error: 'Autorize o armazenamento dos seus dados antes de continuar.', code: 'consent-required' });
     // The reminder tick and the admin routes iterate these two on the server's side, so a truthy
     // non-array would throw there on every pass for as long as it sat on disk. Absent or null is
     // fine — every client fills its own defaults. An array is `typeof 'object'` but no document:
@@ -2936,8 +2943,8 @@ coachJobs.setProposalHook((uid, pending) => {
     tag: 'coach-proposal', url: '#/coach'
   });
 });
-startCadence({ users: () => db.users.filter(u => !u.disabled), userNow, skip: uid => !stateSummary(uid)?.consent });
-startWarmup();
+if (!SERVERLESS) startCadence({ users: () => db.users.filter(u => !u.disabled), userNow, skip: uid => !stateSummary(uid)?.consent });
+if (!SERVERLESS) startWarmup();
 
 // node's requestTimeout is one number for every route, and it is half an hour (below) for the
 // sake of one: a video uploaded over a slow uplink. Every other request keeps node's old five
@@ -2963,8 +2970,9 @@ function bodyDeadline(req) {
 // The Capacitor WebView origins of the Android and iOS app.
 const APP_ORIGINS = new Set(['https://localhost', 'capacitor://localhost', 'http://localhost']);
 
-const server = http.createServer(async (req, res) => {
-  bodyDeadline(req);
+export const requestHandler = async (req, res) => {
+  if (!SERVERLESS) bodyDeadline(req);
+  if (SERVERLESS && (/^\/api\/(coach|push|media)(\/|$)/.test(req.url))) return json(res, 404, { error: 'Recurso indisponível nesta hospedagem.' });
   // Same-origin (the deployed nginx-proxied web app) never triggers CORS, so this only matters
   // for the paired mobile app calling in from its own WebView origin. It carries no cookie
   // (auth is the Authorization header instead), so Allow-Credentials is deliberately never set —
@@ -3050,7 +3058,8 @@ const server = http.createServer(async (req, res) => {
     console.error(key, e);
     if (!res.headersSent) json(res, 500, { error: 'server error' });
   }
-});
+};
+const server = http.createServer(requestHandler);
 // Node's default of 300 s for a whole request would answer 408 to a 40 MB video on a ~1 Mbit/s
 // uplink. Half an hour covers that; a stalled upload is cut much sooner by its own 60 s idle
 // timer in media.js, a client that never finishes its headers still meets headersTimeout, and
@@ -3061,13 +3070,13 @@ server.headersTimeout = 60000;
 // port that was actually bound: with PORT=0 the OS picks one, and a caller that did not choose it
 // (the tests spawn the server that way, and so does anyone running two instances on one box) has
 // no other way to learn it.
-server.listen(PORT, () => console.log(`gym-api on :${server.address().port} (rpID=${RP_ID}, origin=${ORIGIN})`));
+if (!SERVERLESS) server.listen(PORT, () => console.log(`gym-api on :${server.address().port} (rpID=${RP_ID}, origin=${ORIGIN})`));
 
 // The server's own command for a locked-out owner or admin (#584, recover.js): asked over a local
 // socket only this process's user can open (admin-socket.js explains why not by editing db.json).
 // One command: a recovery code for a profile named, or picked by id when several share the name.
 const CLI_REQ = { headers: {}, socket: {} };
-startAdminSocket({
+if (!SERVERLESS) startAdminSocket({
   handle: async msg => {
     if (!msg || msg.cmd !== 'recover') return { error: 'unknown command' };
     const id = typeof msg.id === 'string' ? msg.id : null;
@@ -3082,3 +3091,17 @@ startAdminSocket({
     return { ...row(u), code, expires: link.exp };
   }
 });
+
+// Reload inside the database lock: no process may keep another deployment's old accounts.
+export function restoreRuntime(value = {}) {
+  db = loadDb();
+  for (const k of ['users', 'creds', 'subs', 'invites', 'deviceLinks']) db[k] ||= [];
+  stateCache.clear(); stateSummaries.clear();
+  for (const [map, list] of [[challenges, value.challenges], [pairings, value.pairings]]) {
+    map.clear(); for (const [k, v] of list || []) if (v.exp > Date.now()) map.set(k, v);
+  }
+  restoreLimits(value.limits || []);
+}
+export function snapshotRuntime() {
+  return { challenges: [...challenges].filter(([,v]) => v.exp > Date.now()), pairings: [...pairings].filter(([,v]) => v.exp > Date.now()), limits: snapshotLimits() };
+}
