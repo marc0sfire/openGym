@@ -4,9 +4,9 @@
   "version": "1.4.3",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:mobile": "VITE_MOBILE=1 vite build && node ../scripts/catalogue/stage-media.mjs dist && cap sync && node scripts/check-mobile-bundle.mjs",
+    "dev": "VITE_PERSONAL=1 vite",
+    "build": "VITE_PERSONAL=1 vite build",
+    "build:mobile": "VITE_PERSONAL=1 VITE_MOBILE=1 vite build && node ../scripts/catalogue/stage-media.mjs dist && cap sync && node scripts/check-mobile-bundle.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -42,10 +42,10 @@ describe('boot watchdog', () => {
     expect(b.querySelector('svg')).toBeNull()
     expect(b.getAttribute('role')).toBe('alert')
     expect(b.hasAttribute('aria-hidden')).toBe(false)
-    expect(b.textContent).toContain('openGym could not start on this browser.')
+    expect(b.textContent).toContain('Não foi possível iniciar o openGym neste navegador.')
     expect(b.querySelector('code').textContent).toContain('Invalid regular expression: invalid group specifier name at media-refs-CaxawJNr.js:1')
     const reload = b.querySelector('button')
-    expect(reload.textContent).toBe('Reload')
+    expect(reload.textContent).toBe('Recarregar')
     expect(b.textContent).not.toContain('—')
   })
 
@@ -56,7 +56,7 @@ describe('boot watchdog', () => {
     document.body.appendChild(s)
     s.dispatchEvent(new Event('error'))
     expect(boot().className).toBe('fail')
-    expect(boot().querySelector('code').textContent).toContain('Could not load https://gym.test/assets/index-B93PyrcZ.js')
+    expect(boot().querySelector('code').textContent).toContain('Não foi possível carregar https://gym.test/assets/index-B93PyrcZ.js')
   })
 
   it('ignores an image that failed to load, and an ordinary error until the 10 s are up', () => {
@@ -66,7 +66,7 @@ describe('boot watchdog', () => {
     window.dispatchEvent(new ErrorEvent('error', { message: "TypeError: undefined is not an object (evaluating 'a.b')", filename: 'https://gym.test/assets/x.js', lineno: 3 }))
     expect(boot().className).toBe('')
     vi.advanceTimersByTime(10000)
-    expect(boot().textContent).toContain('openGym could not start on this browser.')
+    expect(boot().textContent).toContain('Não foi possível iniciar o openGym neste navegador.')
     expect(boot().querySelector('code').textContent).toContain("undefined is not an object (evaluating 'a.b') at x.js:3")
   })
 
@@ -74,7 +74,7 @@ describe('boot watchdog', () => {
     vi.advanceTimersByTime(9999)
     expect(boot().querySelector('svg')).not.toBeNull()
     vi.advanceTimersByTime(1)
-    expect(boot().textContent).toContain('openGym is taking too long to start.')
+    expect(boot().textContent).toContain('O openGym está demorando para iniciar.')
   })
 
   it('waits for the boot screen when the failure comes before the page is there', () => {

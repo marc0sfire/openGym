@@ -1,3 +1,4 @@
+import { PERSONAL } from '../lib/personal-mode.js'
 import { create } from 'zustand'
 import { api, setRemoteAuth } from '../lib/api.js'
 import { localTZ } from '../lib/format.js'
@@ -88,7 +89,7 @@ const gainedWorkoutMedia = (prev, next) => {
   return workoutMediaHashes(next).some(h => !had.has(h))
 }
 export const DEF = {
-  unit: 'kg', restSec: 90, restPauseSec: 15, sound: true, soundOnSilent: false, vibrateOnSilent: false, timerFlash: false, timedSetOvertime: false, keepAwake: true, lang: 'en',
+  unit: 'kg', restSec: 90, restPauseSec: 15, sound: true, soundOnSilent: false, vibrateOnSilent: false, timerFlash: false, timedSetOvertime: false, keepAwake: true, lang: PERSONAL ? 'pt-BR' : 'en',
   theme: 'dark', accent: 'lime', body: 'male', targetW: null,
   // The weekly-rate corridor on the body-weight card (#759, lib/bodyweight.js rateCorridor).
   rateGoal: null,
@@ -240,7 +241,7 @@ export const DEF = {
   // Per-language choice for translated exercise names: whether the original English name is
   // shown in parentheses next to the translation. Map { '<lang>': boolean }; a missing key
   // (any profile written before this setting existed) reads as shown.
-  enParens: {},
+  enParens: PERSONAL ? { 'pt-BR': false } : {},
   // Per-language choice for translated exercise names: whether the translation is replaced
   // entirely by the original English name. Independent of enParens and keyed by the same base
   // language, so e.g. Italian can keep its parens while German pins names to English. Map
@@ -308,8 +309,8 @@ const detectedLang = () => {
 // merged under a saved copy it would claim that every existing profile never chose.
 export function freshState() {
   const s = clone(DEF)
-  s.lang = detectedLang()
-  s.langAuto = true
+  s.lang = PERSONAL ? 'pt-BR' : detectedLang()
+  s.langAuto = !PERSONAL
   s.weighIn = false
   // Exercise animations: Small (v1.3.11), a thumbnail beside the exercise name that a tap opens,
   // so the first set is on screen without scrolling. DEF stays 'full' for a profile saved before.

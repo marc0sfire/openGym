@@ -1,7 +1,7 @@
 {
   "name": "openGym",
   "short_name": "openGym",
-  "description": "Personal gym & body weight tracker",
+  "description": "Treinos e evolução de Marcos e Marih",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

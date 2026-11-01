@@ -1,3 +1,4 @@
+import { PERSONAL } from '../lib/personal-mode.js'
 import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
 import { webauthnOK, passkeyLogin, passkeyRegister, passkeyError, bio } from '../lib/api.js'
@@ -9,14 +10,14 @@ import { useState, useRef, useEffect } from 'react'
 import Icon from '../components/Icon.jsx'
 import { Button, Segmented } from '../components/ui.jsx'
 import { askAddDeviceData } from '../sheets.jsx'
-import { passwordOn, PasswordRegisterForm, openPasswordSignIn } from '../components/PasswordAuth.jsx'
+import { passwordOn, PasswordRegisterForm, openPasswordSignIn, PasswordSignInSheet } from '../components/PasswordAuth.jsx'
 import { openDeviceLinkRedeem } from '../components/Passkeys.jsx'
 import { openLostAccess } from '../components/LostAccess.jsx'
 
-function RegisterSheet({ close }) {
+function RegisterSheet({ close, initialName = '' }) {
   const { setUser, pushState, pullState, loadConfig } = useStore()
   const config = useStore(s => s.config)
-  const [name, setName] = useState('')
+  const [name, setName] = useState(initialName)
   const [code, setCode] = useState('')
   const inviteOnly = !!config?.invite_only
   // A password is offered only where the instance allows it (#118), and is the only choice in a
@@ -68,10 +69,11 @@ function RegisterSheet({ close }) {
 
 export default function Login() {
   const { setUser, adoptProfile, setGuest } = useStore()
+  const [selected, setSelected] = useState(null)
   const config = useStore(s => s.config)
   const canGuest = guestAllowed(config)
   const pwOn = passwordOn(config)
-  const register = () => useUI.getState().openSheet(close => <RegisterSheet close={close} />)
+  const register = () => useUI.getState().openSheet(close => <RegisterSheet close={close} initialName={selected || ''} />)
   const signIn = async () => {
     try { const u = await passkeyLogin(); setUser(u, { adopt: true }); await adoptProfile(askAddDeviceData); useUI.getState().toast(t('Welcome back, {0}', u.name)) }
     catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') useUI.getState().toast(passkeyError(e, t('Sign-in failed'))) }
@@ -100,7 +102,13 @@ export default function Login() {
   return (
     <div className="narrow" style={wrap}>
       {head}
-      <div className="muted" style={{ marginBottom: 34 }}>{t('Your workouts. Your weights. Your profile.')}</div>
+      {PERSONAL && <><h2>Quem vai treinar?</h2>
+      <div className="row" style={{ gap: 12, justifyContent: 'center', marginBottom: 20 }}>
+        {['Marcos', 'Marih'].map(name => <Button key={name} variant={selected === name ? 'primary' : 'plain'} onClick={() => setSelected(name)}>{name}</Button>)}
+      </div>
+      <p className="muted">{selected ? `Entre na conta de ${selected} para acessar seus dados.` : 'Escolha seu nome e autentique sua conta.'}</p>
+      {selected && pwOn && <Button variant="primary" onClick={() => useUI.getState().openSheet(close => <PasswordSignInSheet close={close} initialName={selected} />)}>Entrar como {selected}</Button>}
+      <div style={{ height: 12 }} /></>}
       {webauthnOK() ? <>
         <Button variant="primary" icon="fingerprint" onClick={signIn}>{t('Sign in with passkey')}</Button>
         <div style={{ height: 10 }} />
@@ -128,7 +136,7 @@ export default function Login() {
         // so say that plainly instead of offering a local profile that cannot be created.
         : t("This browser doesn't support passkeys, and this instance requires an account. Try a browser or device with passkey support.")}</div>}
       {canGuest && <Button variant="ghost" className="dim" onClick={() => setGuest(true)}>{t('Continue without account')}</Button>}
-      <div className="dim small" style={{ marginTop: 26, lineHeight: 1.5 }}>{pwOn ? t('Passkeys use {0}. A password works too, where passkeys do not.', bio()) : t('Passkeys use {0}. No passwords to remember.', bio())}<br />{t('Each profile keeps its own plan, workouts & body weight.')}</div>
+      <div className="dim small" style={{ marginTop: 26, lineHeight: 1.5 }}>{pwOn ? t('Passkeys use {0}. A password works too, where passkeys do not.', bio()) : t('Passkeys use {0}. No passwords to remember.', bio())}<br />{t('Each profile keeps its own plan, workouts & body weight.')}{PERSONAL && <p><a href="https://github.com/marc0sfire/openGym">Código-fonte · openGym AGPL</a></p>}</div>
     </div>
   )
 }

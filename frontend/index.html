@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
@@ -9,7 +9,7 @@
   // i18n-core RTL_LANGS is the runtime source of truth — keep this list in sync.
   try {
     var s = JSON.parse(localStorage.getItem('gym_state_v1') || '{}');
-    var l = s.lang || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
+    var l = s.lang || 'pt-BR';
     document.documentElement.lang = l;
     document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
   } catch (e) {}
@@ -35,29 +35,29 @@
       var box = document.createElement('div'), h = document.createElement('p'), p = document.createElement('p');
       h.className = 'h';
       h.textContent = title;
-      p.textContent = 'Reloading often helps. If it keeps happening, please send us this:';
+      p.textContent = 'Recarregar costuma resolver. Se continuar, guarde esta mensagem:';
       var c = document.createElement('code');
-      c.textContent = (detail || 'No error, it just never finished loading.') + ' (' + navigator.userAgent + ')';
+      c.textContent = (detail || 'O carregamento não foi concluído.') + ' (' + navigator.userAgent + ')';
       var r = document.createElement('button');
       r.type = 'button';
-      r.textContent = 'Reload';
+      r.textContent = 'Recarregar';
       r.onclick = function () { location.reload(); };
       box.appendChild(h); box.appendChild(p); box.appendChild(c); box.appendChild(r);
       b.appendChild(box);
     }
     window.addEventListener('error', function (e) {
       var t = e && e.target;
-      if (t && t.tagName === 'SCRIPT') return fail('openGym could not start on this browser.', 'Could not load ' + (t.src || 'a script'));
+      if (t && t.tagName === 'SCRIPT') return fail('Não foi possível iniciar o openGym neste navegador.', 'Não foi possível carregar ' + (t.src || 'a script'));
       if (!e || !e.message) return;
       last = e.message + (e.filename ? ' at ' + e.filename.split('/').pop() + ':' + e.lineno : '');
-      if (/SyntaxError|Unexpected|Invalid regular expression/i.test(e.message)) fail('openGym could not start on this browser.', last);
+      if (/SyntaxError|Unexpected|Invalid regular expression/i.test(e.message)) fail('Não foi possível iniciar o openGym neste navegador.', last);
     }, true);
     window.addEventListener('unhandledrejection', function (e) {
       var r = e && e.reason;
       if (r) last = String((r && r.message) || r);
     });
     setTimeout(function () {
-      fail(last ? 'openGym could not start on this browser.' : 'openGym is taking too long to start.', last);
+      fail(last ? 'Não foi possível iniciar o openGym neste navegador.' : 'O openGym está demorando para iniciar.', last);
     }, 10000);
   })();
 </script>

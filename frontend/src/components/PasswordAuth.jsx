@@ -85,9 +85,9 @@ const codeStyle = { letterSpacing: '.14em', fontWeight: 600, textAlign: 'center'
 /* Sign in with name (or the profile's sign-in e-mail) and password, or — one tap away — redeem a reset code from the admin, which
    sets a new password and signs in. `onPasskey`, when given, offers the passkey instead. The
    inputs carry the autocomplete names password managers look for, inside a real form. */
-export function PasswordSignInSheet({ close, onPasskey }) {
+export function PasswordSignInSheet({ close, onPasskey, initialName = '' }) {
   const [mode, setMode] = useState('signin')   // 'signin' | 'reset'
-  const [name, setName] = useState('')
+  const [name, setName] = useState(initialName)
   const [pw, setPw] = useState('')
   const [code, setCode] = useState('')
   const [next, setNext] = useState('')
