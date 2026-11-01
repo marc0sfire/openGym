@@ -299,7 +299,14 @@
     "name": "elevação de panturrilha no smith (com bloco)"
   },
   "1051": {
-    "name": "alongamento do gato"
+    "name": "alongamento do gato",
+    "instructions": [
+      "Apoie mãos e joelhos no chão, com as mãos abaixo dos ombros.",
+      "Aproxime o queixo do peito e arredonde as costas suavemente em direção ao teto.",
+      "Contraia o abdômen de leve e respire sem forçar o movimento.",
+      "Volte à posição neutra da coluna.",
+      "Repita lentamente ou sustente a posição confortável pelo tempo indicado."
+    ]
   },
   "1052": {
     "name": "alongamento de costas na barra fixa"
@@ -721,7 +728,14 @@
     "name": "rosca alternada com halteres v. 2"
   },
   "1197": {
-    "name": "agachamento"
+    "name": "agachamento",
+    "instructions": [
+      "Fique em pé com os pés na largura dos ombros e as pontas levemente voltadas para fora.",
+      "Leve o quadril para trás e flexione os joelhos para agachar.",
+      "Desça apenas até onde consegue manter os calcanhares no chão e o peito elevado.",
+      "Empurre o chão com os pés para voltar a ficar em pé.",
+      "Mantenha os joelhos alinhados com as pontas dos pés."
+    ]
   },
   "1198": {
     "name": "barra fixa com salto"
@@ -848,7 +862,14 @@
     "name": "remada sentada no cabo (barra curva)"
   },
   "1241": {
-    "name": "bird dog"
+    "name": "bird dog",
+    "instructions": [
+      "Apoie mãos e joelhos no chão, com as mãos abaixo dos ombros e os joelhos abaixo do quadril.",
+      "Estenda o braço direito para a frente e a perna esquerda para trás.",
+      "Mantenha o quadril nivelado e as costas estáveis, sem girar o tronco.",
+      "Sustente brevemente e retorne aos apoios.",
+      "Repita com o outro braço e a outra perna, alternando os lados."
+    ]
   },
   "1242": {
     "name": "abdominal (na bosu)"
@@ -3524,7 +3545,14 @@
     "name": "agachamento prisioneiro"
   },
   "1581": {
-    "name": "avanço reverso com peso corporal"
+    "name": "avanço reverso com peso corporal",
+    "instructions": [
+      "Fique em pé com os pés na largura do quadril.",
+      "Dê um passo para trás e flexione os joelhos, descendo até uma amplitude confortável.",
+      "Mantenha o tronco ereto e o calcanhar da frente apoiado.",
+      "Empurre o chão com o pé da frente para voltar.",
+      "Alterne as pernas ou termine as repetições de um lado antes de trocar."
+    ]
   },
   "1582": {
     "name": "postura reclinada do dedão do pé com corda",
@@ -8337,7 +8365,14 @@
     ]
   },
   "3018": {
-    "name": "elevação de panturrilha em pé"
+    "name": "elevação de panturrilha em pé",
+    "instructions": [
+      "Fique em pé com os pés na largura do quadril.",
+      "Eleve os calcanhares, apoiando o peso na parte da frente dos pés.",
+      "Faça uma breve pausa no alto.",
+      "Abaixe os calcanhares lentamente até o chão.",
+      "Se precisar, use uma parede firme apenas para equilíbrio."
+    ]
   },
   "3019": {
     "name": "barra fixa com apoio no banco",
@@ -14361,7 +14396,14 @@
     "name": "elevação frontal unilateral pegada supinada com halter"
   },
   "5093": {
-    "name": "supino unilateral no chão com halter"
+    "name": "supino unilateral no chão com halter",
+    "instructions": [
+      "Deite-se de costas com os joelhos dobrados e segure um halter na altura do peito.",
+      "Apoie o outro braço no chão.",
+      "Empurre o halter para cima até estender o braço, mantendo o controle.",
+      "Abaixe devagar até o braço tocar suavemente o chão.",
+      "Termine as repetições e troque de braço."
+    ]
   },
   "5094": {
     "name": "press unilateral no landmine"
@@ -20436,7 +20478,15 @@
     "name": "ponte (braços estendidos)"
   },
   "0145": {
-    "name": "ponte de glúteos"
+    "name": "ponte de glúteos",
+    "instructions": [
+      "Deite-se de costas com os joelhos dobrados e os pés apoiados na largura do quadril.",
+      "Deixe os braços ao lado do corpo.",
+      "Pressione os calcanhares e eleve o quadril.",
+      "Contraia os glúteos no alto.",
+      "Abaixe lentamente até o chão.",
+      "Mantenha as costelas baixas e evite arquear demais a região lombar."
+    ]
   },
   "0147": {
     "name": "abdominal bicicleta com rotação"
@@ -23518,7 +23568,15 @@
     "name": "alongamento de pescoço para frente e para trás"
   },
   "0463": {
-    "name": "prancha frontal"
+    "name": "prancha frontal",
+    "instructions": [
+      "Apoie os antebraços no chão com os cotovelos abaixo dos ombros.",
+      "Eleve o quadril e os joelhos, apoiando-se nas pontas dos pés.",
+      "Mantenha o corpo alinhado da cabeça aos calcanhares.",
+      "Contraia o abdômen e os glúteos sem prender a respiração.",
+      "Sustente pelo tempo planejado; diminua o tempo se perder o alinhamento.",
+      "Evite deixar o quadril cair ou ficar muito elevado."
+    ]
   },
   "0464": {
     "name": "prancha frontal com rotação",
@@ -26866,7 +26924,14 @@
     "name": "postura da cadeira utkatasana"
   },
   "0945": {
-    "name": "postura da criança"
+    "name": "postura da criança",
+    "instructions": [
+      "Ajoelhe-se no chão com os dedões próximos e os joelhos afastados de maneira confortável.",
+      "Leve o quadril para trás, em direção aos calcanhares.",
+      "Incline o tronco para a frente e deslize os braços à frente.",
+      "Apoie a testa se alcançar confortavelmente e relaxe os ombros.",
+      "Permaneça pelo tempo planejado, respirando devagar e sem forçar joelhos ou quadril."
+    ]
   },
   "0946": {
     "name": "postura do corvo bakasana"

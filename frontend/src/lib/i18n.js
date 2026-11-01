@@ -1,3 +1,6 @@
+import { PERSONAL } from './personal-mode.js'
+import { setPortugueseOnly } from './i18n-core.js'
+setPortugueseOnly(PERSONAL)
 // Browser-only shell of the i18n module. The runtime-agnostic state and readers live
 // in i18n-core.js (plain Node-loadable); this file adds the two pieces that genuinely need
 // the browser: `setLang` (which lazy-loads locale packs via import.meta.glob) and the React

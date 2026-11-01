@@ -35,7 +35,9 @@ export function dailyPlan(S, date) {
     && !/recuperação/i.test(w.name || '') && w.entries?.some(e => e.sets?.some(s => s.done || s.sides)))
   const rest = !days.includes(weekday) || recent.length > 0
   const index = days.indexOf(weekday)
-  const group = rest ? 'recovery' : index % 2 === 0 ? 'upper' : 'lower'
+  const lastStrength = (S.workouts || []).filter(w => w?.d && dayGap(date,w.d) >= 0 && /(?:superiores|pernas) e abdômen/i.test(w.name || '') && w.entries?.some(e => e.sets?.some(s => s.done || s.sides))).sort((a,b) => b.d.localeCompare(a.d) || (Number(b.end)||0)-(Number(a.end)||0))[0]
+  const nextGroup = lastStrength ? /superiores/i.test(lastStrength.name) ? 'lower' : 'upper' : index % 2 === 0 ? 'upper' : 'lower'
+  const group = rest ? 'recovery' : nextGroup
   const maxMinutes = Math.max(5, Math.min(90, Number(p.minutes) || 20))
   const desiredSets = rest ? 1 : p.level === 'beginner' ? 2 : 3
   const restSec = rest ? 30 : p.goal === 'strength' ? 120 : 75

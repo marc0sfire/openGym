@@ -24,6 +24,13 @@ describe('rotina pessoal', () => {
     expect(dailyPlan(state({}),'2026-11-04').group).toBe('lower')
     expect(dailyPlan(state({}),'2026-11-03').rest).toBe(true)
   })
+  it('alterna pelo treino concluído mesmo com dias de força consecutivos selecionados', () => {
+    const S = state({days:[0,1,2,3,4,5,6]})
+    S.workouts=[{d:'2026-10-30',name:'Casa · Superiores e abdômen',entries:[{sets:[{done:true}]}]}]
+    expect(dailyPlan(S,monday).group).toBe('lower')
+    S.workouts[0].name='Prédio · Pernas e abdômen'
+    expect(dailyPlan(S,monday).group).toBe('upper')
+  })
   it('tem catálogo, instruções e orçamento real de tempo para todas as opções', () => {
     for (const [id] of MOVES) expect(EXIDX[id],id).toBeTruthy()
     for (const minutes of [10,15,20,30,45,60]) for (const level of ['beginner','intermediate','advanced']) {

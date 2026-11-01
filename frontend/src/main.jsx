@@ -1,3 +1,5 @@
+import { PERSONAL } from './lib/personal-mode.js'
+import { setLang } from './lib/i18n.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
@@ -19,9 +21,11 @@ handOverFromLaunchScreen()
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 
-createRoot(document.getElementById('root')).render(
+const mount = () => createRoot(document.getElementById('root')).render(
   <StrictMode><App /></StrictMode>
 )
+if (PERSONAL) setLang('pt-BR', false, false).finally(mount)
+else mount()
 
 // The photos and videos of custom exercises, in every build (the phone and the demo included):
 // uploads of what the server lacks, the local clean-up, and the plan's files kept offline.

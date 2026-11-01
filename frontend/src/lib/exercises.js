@@ -1,3 +1,5 @@
+import { PERSONAL } from './personal-mode.js'
+import PT_STEPS from '../instr/pt-BR.js'
 import { EXDB, EXALIAS } from './exercises-data.js'
 import MUSCLE_MAP from './exercise-muscle-map.json' with { type: 'json' }
 import V13_IDS from './catalogue-v13-ids.json' with { type: 'json' }
@@ -122,7 +124,7 @@ export function healCustomEx(list) {
   return changed ? out : list
 }
 // Full searchable catalogue — customs first so your own exercises are easy to find.
-export const allExercises = st => [...(st.customEx || []), ...CATALOGUE]
+export const allExercises = st => [...(st.customEx || []), ...(PERSONAL ? CATALOGUE.filter(e => PT_STEPS[e.id]?.length) : CATALOGUE)]
 
 function searchableText(value) {
   if (Array.isArray(value)) return value.map(searchableText).join(' ')

@@ -32,8 +32,10 @@ como é a mesma academia, cada pessoa confirma o mesmo equipamento no seu perfil
 Iniciar treino abre o registrador original de séries. Registre cada série e conclua o treino.
 Histórico e Estatísticas mostram a evolução. As dicas de progressão de calistenia explicam como
 avançar; mudanças de dificuldade são escolhas explícitas. Cargas iniciais não são presumidas.
-As durações são estimativas incluindo aquecimento e pausas. A biblioteca completa e o editor
-original continuam acessíveis; treinos criados livremente precisam de sua própria conferência.
+As durações são estimativas incluindo aquecimento e pausas. O catálogo original é preservado no código e no índice de histórico; a biblioteca desta
+distribuição oferece 1.333 exercícios com nome e instruções em português. As traduções que faltavam
+nos movimentos das rotinas pessoais foram acrescentadas ao catálogo fonte. O editor
+original continua acessível; treinos criados livremente precisam de sua própria conferência.
 
 ## Hospedagem e dados
 
@@ -172,3 +174,8 @@ npm run build --prefix frontend
 O teste real verifica cadastro, convite por nome, login, isolamento por sessão, consentimento,
 conflito 409 e sobrevivência de treino/peso/desafio WebAuthn após reiniciar a API. Os testes de
 saúde usam plugins simulados; não são testes de iPhone, balança ou relógio.
+
+Em 01/11/2026, a validação entre dois deploys Vercel de Preview confirmou o mesmo peso
+e treino fictícios no banco isolado. Também foi concluída uma sessão pela interface web local,
+registrando duas séries de mobilidade e verificando a gravação no PostgreSQL. Isso não é
+um teste físico de exercício, sensor, balança ou relógio.

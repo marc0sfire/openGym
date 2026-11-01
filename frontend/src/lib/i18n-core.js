@@ -1,3 +1,5 @@
+let portugueseOnly = false
+export function setPortugueseOnly(value) { portugueseOnly = !!value }
 // Runtime-agnostic core of the i18n module: state, constants and readers (t, dateLocale,
 // instrFor, exerciseNameFor, getLang). Plain Node-loadable — the browser-only pieces
 // (import.meta.glob lazy
@@ -160,6 +162,7 @@ export function _detailsFailed(retryMs = 20000) {
 export const instrFor = ex => {
   const own = instr && instr[ex.id]
   if (own) return own
+  if (portugueseOnly && lang === 'pt-BR') return ex.st || ['As instruções em português deste exercício ainda não estão disponíveis. Escolha uma alternativa com instruções completas.']
   if (!enInstr) askDetails()
   return (enInstr && enInstr[ex.id]) || ex.st || []
 }
@@ -173,6 +176,7 @@ export const descFor = ex => {
   if (!ex) return ''
   const own = descs && descs[ex.id]
   if (own) return own
+  if (portugueseOnly && lang === 'pt-BR') return ''
   if (!enDescs) askDetails()
   return (enDescs && enDescs[ex.id]) || ex.desc || ''
 }
