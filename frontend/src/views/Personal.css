@@ -1,0 +1,112 @@
+/* Personal planning page. Independent layout prevents full-width shared buttons
+   from collapsing adjacent text (notably the page header). */
+.personal{--personal-muted:var(--label-2);--personal-accent:var(--acc);width:100%;max-width:960px;min-width:0;margin:0 auto;color:var(--label)}
+.personal-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:8px 0 28px}
+.personal-heading{min-width:0;flex:1}
+.personal-eyebrow{display:block;color:var(--personal-muted);font-size:11px;font-weight:600;letter-spacing:.11em;line-height:1.5}
+.personal-header h1{font-size:clamp(26px,3.2vw,36px);font-weight:650;line-height:1.16;letter-spacing:-.035em;margin:7px 0 8px;overflow-wrap:normal;word-break:normal}
+.personal-header p{font-size:15px;color:var(--personal-muted);line-height:1.5;margin:0}
+.personal .btn.personal-back{width:auto;flex:0 0 auto;min-height:44px;border:1px solid var(--sep-op);border-radius:12px;color:var(--label)}
+.personal-panel{min-width:0;background:var(--surface);border:1px solid var(--sep-op);border-radius:20px;padding:24px;margin:0}
+.personal-panel h2{color:var(--label);font-size:19px;line-height:1.3;letter-spacing:-.025em;font-weight:600;margin:0}
+.personal-section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.personal-section-heading>.icn{color:var(--personal-muted);font-size:22px;flex:none}
+.personal-section-heading .personal-eyebrow+h2{margin-top:5px}
+.personal-section-heading p,.personal-description{font-size:14px;line-height:1.65;color:var(--personal-muted);margin:7px 0 0}
+.personal-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.personal-mode{display:flex;align-items:center;gap:14px;min-width:0;text-align:left;padding:18px;border:1px solid var(--sep);border-radius:15px;background:var(--bg-el);color:var(--label);cursor:pointer;transition:background 160ms,border-color 160ms}
+.personal-mode:hover{background:var(--surface-2)}
+.personal-mode.is-selected{background:var(--acc-soft);border-color:var(--acc-line)}
+.personal-mode-icon{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:12px;background:var(--surface-2);color:var(--personal-muted);font-size:25px}
+.personal-mode.is-selected .personal-mode-icon{background:var(--acc);color:var(--on-acc)}
+.personal-mode-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.personal-mode-copy strong{font-size:15px;font-weight:600;line-height:1.3}
+.personal-mode-copy>span{font-size:12px;color:var(--personal-muted);line-height:1.5}
+.personal-mode-check{width:20px;height:20px;flex:none;border:1px solid var(--sep);border-radius:50%;display:grid;place-items:center;font-size:13px}
+.personal-mode.is-selected .personal-mode-check{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.personal-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:20px;margin-top:20px}
+.personal-setup{display:flex;min-width:0;flex-direction:column;gap:20px}
+.personal-fields{display:grid;gap:16px}
+.personal label{display:block;min-width:0;font-size:13px;line-height:1.5;font-weight:500;color:var(--label)}
+.personal select,.personal textarea{display:block;width:100%;min-width:0;min-height:48px;padding:12px 14px;margin-top:7px;border:1px solid var(--sep);border-radius:11px;background:var(--bg-el);color:var(--label);font:inherit;font-size:15px;line-height:1.5;box-sizing:border-box}
+.personal select{padding-right:30px;cursor:pointer}
+.personal textarea{resize:vertical;min-height:90px}
+.personal textarea::placeholder{color:var(--personal-muted)}
+.personal :is(button,select,textarea,summary):focus-visible{outline:2px solid var(--acc);outline-offset:4px}
+.personal-week{min-width:0;margin:24px 0 0;padding:0;border:0}
+.personal-week legend{padding:0;font-size:13px;font-weight:500}
+.personal-week>p,.personal-help{font-size:12px;line-height:1.6;color:var(--personal-muted);margin:6px 0 0}
+.personal-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:12px}
+.personal-days label{position:relative;cursor:pointer}
+.personal-days input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0}
+.personal-days span{display:grid;place-items:center;min-height:44px;border:1px solid var(--sep);background:var(--bg-el);border-radius:9px;font-size:12px;font-weight:500}
+.personal-days .is-selected span{color:var(--personal-accent);border-color:var(--acc-line);background:var(--acc-soft)}
+.personal-days input:focus-visible+span{outline:2px solid var(--acc);outline-offset:3px}
+.personal-save-note{display:flex;align-items:flex-start;gap:7px;margin:22px 0 0;font-size:11px;line-height:1.6;color:var(--personal-muted)}
+.personal-save-note .icn{flex:none;margin-top:1px;font-size:15px}
+.personal-count{display:grid;place-items:center;min-width:30px;height:30px;background:var(--surface-2);border-radius:9px;font-size:13px;font-weight:600}
+.personal-equipment{display:grid;gap:8px;margin:18px 0}
+.personal-equipment label{display:flex;align-items:center;gap:10px;min-height:48px;padding:11px 12px;background:var(--bg-el);border:1px solid var(--sep-op);border-radius:10px;cursor:pointer;font-size:13px}
+.personal-equipment label.is-selected{border-color:var(--acc-line);background:var(--acc-soft)}
+.personal-equipment input{width:18px;height:18px;flex:none;accent-color:var(--acc);margin:0;cursor:pointer}
+.personal-notes{margin-top:18px}
+.personal-notes~.btn{margin-top:18px}
+.personal-progress summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:24px;font-size:14px;font-weight:500}
+.personal-progress summary>span{display:flex;align-items:center;gap:10px}
+.personal-progress summary .icn{font-size:18px;color:var(--personal-muted)}
+.personal-progress .personal-description{margin-bottom:16px}
+.personal-progress>.btn{width:auto;min-height:44px;padding-left:0}
+.personal-badge{display:inline-flex;align-items:center;gap:5px;flex:none;font-size:11px;font-weight:600;padding:6px 9px;background:var(--acc-soft);color:var(--acc);border-radius:99px}
+.personal-badge.is-rest{color:var(--label);background:var(--surface-2)}
+.personal-workout>h2{font-size:27px;line-height:1.18;letter-spacing:-.03em;margin:0 0 12px}
+.personal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:22px 0}
+.personal-stats>div{display:grid;grid-template-columns:18px 1fr;gap:5px 7px;align-items:center;min-width:0;padding:11px 9px;border-radius:11px;background:var(--bg-el)}
+.personal-stats .icn{font-size:16px;color:var(--personal-muted)}
+.personal-stats strong{font-size:14px;font-weight:600;white-space:nowrap}
+.personal-stats span{grid-column:2;font-size:10px;color:var(--personal-muted)}
+.personal .personal-start{min-height:52px;font-size:15px;border-radius:12px}
+.personal-start+.personal-help{margin-top:12px;text-align:center}
+.personal-empty{padding:30px 8px;text-align:center}
+.personal-empty>span{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:18px;background:var(--surface-2);color:var(--personal-muted);font-size:30px}
+.personal-empty p{font-size:14px;line-height:1.7;margin:18px auto 8px;max-width:30ch}
+.personal-empty small{color:var(--personal-muted);font-size:12px}
+.personal-exercise-list{margin-top:26px}
+.personal-exercise{padding:22px 0;border-top:1px solid var(--sep-op)}
+.personal-exercise-heading{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+.personal-exercise-number{flex:none;width:28px;padding-top:2px;color:var(--personal-muted);font-size:13px;font-variant-numeric:tabular-nums}
+.personal-exercise-heading>div{flex:1;min-width:0}
+.personal-exercise h3{font-size:16px;font-weight:600;line-height:1.45;margin:0;text-transform:none;overflow-wrap:break-word}
+.personal-exercise-heading p{font-size:12px;line-height:1.6;margin:4px 0 0;color:var(--personal-muted)}
+.personal-exercise-content{display:grid;grid-template-columns:100px minmax(0,1fr);gap:16px;align-items:start}
+.personal video{display:block;width:100px;height:100px;max-width:100%;border-radius:13px;background:white;object-fit:contain}
+.personal-instructions{min-width:0}
+.personal summary{list-style:none;cursor:pointer}
+.personal summary::-webkit-details-marker{display:none}
+.personal-instructions summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;font-size:12px;font-weight:500;color:var(--personal-accent)}
+.personal-instructions summary .icn{flex:none;font-size:14px;transition:transform 160ms}
+.personal details[open]>summary>.icn,.personal-instructions[open]>summary .icn{transform:rotate(180deg)}
+.personal-instructions ol{font-size:13px;line-height:1.75;padding-left:18px;margin:12px 0 18px;color:var(--personal-muted)}
+.personal-instructions li+li{margin-top:8px}
+.personal-instructions label{font-size:12px}
+.personal-instructions select{font-size:12px;padding:10px 7px;min-height:44px}
+.personal-safety{font-size:11px;line-height:1.6;color:var(--personal-muted);margin:16px 0 0}
+.personal-devices{margin-top:20px;padding:0;overflow:hidden}
+.personal-devices>summary{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;min-height:72px}
+.personal-devices>summary>span{display:flex;align-items:center;gap:14px;min-width:0}
+.personal-devices>summary>span>.icn{flex:none;color:var(--personal-muted);font-size:22px}
+.personal-devices strong,.personal-devices small{display:block}
+.personal-devices strong{font-size:14px;font-weight:500;line-height:1.5}
+.personal-devices small{font-size:12px;color:var(--personal-muted);line-height:1.5;margin-top:3px}
+.personal-devices>summary>.icn{flex:none;font-size:15px;color:var(--personal-muted)}
+.personal-device-content{padding:0 24px 24px;max-width:75ch;font-size:13px;color:var(--personal-muted);line-height:1.7}
+.personal-device-content p{margin:0 0 14px}
+.personal-device-content .btn{width:auto}
+.personal-footer{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;padding:26px 8px 12px;font-size:11px;line-height:1.6;color:var(--personal-muted)}
+.personal-footer a{color:var(--personal-muted);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:999px){.personal-layout{grid-template-columns:minmax(0,1fr)}.personal-modes{grid-template-columns:minmax(0,1fr)}.personal-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.personal-fields>label:nth-child(2){grid-column:1/-1;grid-row:2}.personal-header{margin-bottom:24px;gap:12px}.personal-panel{padding:20px;border-radius:17px}.personal-exercise-content{grid-template-columns:100px minmax(0,1fr)}.personal-progress{order:3}.personal-devices>summary{padding:18px 20px}.personal-device-content{padding:0 20px 20px}}
+@media(max-width:380px){.personal-panel{padding:16px}.personal-header h1{font-size:25px}.personal .btn.personal-back{padding:9px 10px;font-size:13px}.personal-mode{padding:14px;gap:10px}.personal-mode-icon{width:38px;height:38px;font-size:22px}.personal-mode-copy strong{font-size:14px}.personal-workout>h2{font-size:24px}.personal-stats>div{display:flex;flex-direction:column;gap:4px;padding:10px 4px}.personal-stats span{font-size:10px}.personal-exercise-content{grid-template-columns:80px minmax(0,1fr);gap:12px}.personal video{width:80px;height:80px}.personal-days{gap:3px}.personal-days span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.personal *{transition:none!important}}
+
+:root[data-theme="light"] .personal{--personal-muted:#5c5c66;--personal-accent:color-mix(in srgb,var(--acc) 55%,#000)}
+.personal-days span{position:relative}
+.personal-days .is-selected span::after{content:"";position:absolute;bottom:5px;left:calc(50% - 2px);width:4px;height:4px;border-radius:50%;background:currentColor}
